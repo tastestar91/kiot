@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * api : get_irdata_alluser.api
+ * return : json
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+// ip check
+check_auth();
+
+// global var
+$result_arr = array();
+
+/* get ir group data */
+$url = $kiot_api_ir['GROUP_ALL'];
+$kiot_data = get_kiot_data($url);
+if (is_null($kiot_data)) {
+	error_log('get_irdata_alluser: get_kiot_data error, url=' . $url);
+	header("HTTP/1.1 500 Internal Server Error");
+	exit;
+}
+
+/* filtering (all) user group data */
+foreach ($kiot_data as $key => $value) {
+	if (strncmp($key, 'u-', 2) == 0) {
+		$result_arr[$key] = $value;
+	}
+}
+unset($kiot_data);
+
+/* response data */
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($result_arr, JSON_FORCE_OBJECT);
+unset($result_arr);
+
+?>

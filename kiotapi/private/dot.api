@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * api : dot.api
+ * param : qday(yyyymmdd)
+ * return : csv
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+check_auth();
+check_param();
+$data = get_kiot_data($kiot_api['DOT'], $kiot_api_sensor['DOT']);
+return_kiot_data($data, $kiot_api_sensor['DOT']);
+
+?>

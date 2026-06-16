@@ -1,0 +1,46 @@
+{
+	"timestamp": 1540346735,
+	"auth": {
+		"deviceId": "1234567890ABCDEF",
+		"accessToken": "something"
+	},
+	"service": {
+		"id": "lab-test-opentsdb-zk-rr_test-bt"
+	},
+	"data": {
+		"node_info": [
+			{
+				"id": "B8:27:EB:99:99:98"
+			},
+			{
+				"info": {
+					"seq": 1,
+					"ip": "192.168.101.101",
+					"mac": "B8:27:EB:99:99:98",
+					"next_hop": "B8:27:EB:05:68:85",
+					"dmesg": "",
+					"mode": "gateway",
+					"vap": ""
+				}
+			}
+		],
+		"archive": {
+			"rssi": [
+				{
+					"value": -74,
+					"time": 1540346735,
+					"tags": {
+						"beaconId": "floe3D84"
+					}
+				},
+				{
+					"value": -80,
+					"time": 1540346500,
+					"tags": {
+						"beaconId": "floe3D84"
+					}
+				}
+			]
+		}
+	}
+}

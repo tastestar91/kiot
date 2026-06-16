@@ -1,0 +1,57 @@
+{
+    "dataset": [
+        {
+            "service": {
+                "id": "server_kwkiotcluster-redis"
+            },
+            "data": [
+                {
+                    "key": "ir-sensor-data-monitor/v1/memstore:ir-mon/groups/v1/config",
+                    "value": "{\"kw-isk\":{\"kw-iskp1\":{\"all\":true},\"kw-iske1\":{\"all\":true}}, \"kw-osk\":{\"kw-oskp1\":{\"all\":true},\"kw-oske1\":{\"all\":true}}, \"kw-osd\":{\"kw-osde1\":{\"all\":true}}, \"kw-ick\":{\"kw-ickp1\":{\"all\":true},\"kw-icke1\":{\"all\":true}}, \"kw-ock\":{\"kw-ockp1\":{\"all\":true},\"kw-ocke1\":{\"all\":true}}, \"kw-ocd\":{\"kw-ocde1\":{\"all\":true}}, \"kw-vsk\":{\"kw-vskp1\":{\"all\":true},\"kw-vske1\":{\"all\":true}}, \"kw-ivk\":{\"kw-ivkp1\":{\"all\":true},\"kw-ivke1\":{\"all\":true}}, \"kw-ise\":{\"kw-isep1\":{\"all\":true}}, \"kw-ose\":{\"kw-osep1\":{\"all\":true}}}"
+                }
+            ]
+        },
+        {
+            "service": {
+                "id": "server_kwkiotcluster-redis-pub"
+            },
+            "data": [
+                {
+                    "channel": [ "ir-sensor-data-monitor/v1/groupmanager.put:ir-mon/groups/v1/update" ],
+                    "data": "{\"kw-isk\":{\"kw-iskp1\":{\"all\":true},\"kw-iske1\":{\"all\":true}}, \"kw-osk\":{\"kw-oskp1\":{\"all\":true},\"kw-oske1\":{\"all\":true}}, \"kw-osd\":{\"kw-osde1\":{\"all\":true}}, \"kw-ick\":{\"kw-ickp1\":{\"all\":true},\"kw-icke1\":{\"all\":true}}, \"kw-ock\":{\"kw-ockp1\":{\"all\":true},\"kw-ocke1\":{\"all\":true}}, \"kw-ocd\":{\"kw-ocde1\":{\"all\":true}}, \"kw-vsk\":{\"kw-vskp1\":{\"all\":true},\"kw-vske1\":{\"all\":true}}, \"kw-ivk\":{\"kw-ivkp1\":{\"all\":true},\"kw-ivke1\":{\"all\":true}}, \"kw-ise\":{\"kw-isep1\":{\"all\":true}}, \"kw-ose\":{\"kw-osep1\":{\"all\":true}}}"
+                }
+            ]
+        }
+    ]
+}
+
+
+
+
+{
+    "dataset": [
+        {
+            "service": {
+                "id": "server_kwkiotcluster-redis"
+            },
+            "data": [
+                {
+                    "key": "ingress-router/v1/memstore:kw/iaq/cmd/v1/test",
+                    "value": "{\"serial\":\"IAQP2000001\",\"update\":1587978180,\"ai_mode_devices\":5,\"vent\":[{\"model\":\"TAES\",\"serial\":\"VENTTS100001\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100001\"}},{\"model\":\"TAES\",\"serial\":\"VENTTS100002\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100002\"}},{\"model\":\"TAES\",\"serial\":\"VENTTS100003\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100003\"}},{\"model\":\"TAES\",\"serial\":\"VENTTS100004\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100004\"},{\"model\":\"TAES\",\"serial\":\"VENTTS100005\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100005\"}}]}"
+                }
+            ]
+        },
+        {
+            "service": {
+                "id": "server_kwkiotcluster-redis-pub"
+            },
+            "data": [
+                {
+                    "channel": [ "ingress-router/v1/memstore.put:kw/iaq/cmd/v1/test" ],
+                    "data": "{\"serial\":\"IAQP2000001\",\"update\":1587978180,\"ai_mode_devices\":5,\"vent\":[{\"model\":\"TAES\",\"serial\":\"VENTTS100001\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100001\"}},{\"model\":\"TAES\",\"serial\":\"VENTTS100002\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100002\"}},{\"model\":\"TAES\",\"serial\":\"VENTTS100003\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100003\"}},{\"model\":\"TAES\",\"serial\":\"VENTTS100004\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100004\"},{\"model\":\"TAES\",\"serial\":\"VENTTS100005\",\"ai_mode\":1,\"channel\":{\"req\":\"kerv/req/VENTTS100005\"}}]}"
+                }
+            ]
+        }
+    ]
+} 
+

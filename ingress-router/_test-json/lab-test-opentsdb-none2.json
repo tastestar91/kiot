@@ -1,0 +1,42 @@
+{
+	"timestamp": 1539223135,
+	"auth": {
+		"deviceId": "1234567890ABCDEF",
+		"accessToken": "something"
+	},
+	"service": {
+		"id": "lab-test-opentsdb-none"
+	},
+	"data": {
+		"node_info": [
+			{
+			  "id": "B8:27:EB:05:68:85"
+			},
+			{
+			  "info": {
+				"seq": 1,
+				"ip": "192.168.101.101",
+				"mac": "B8:27:EB:05:68:85",
+				"next_hop": "B8:27:EB:05:68:85",
+				"dmesg": "",
+				"mode": "gateway",
+				"vap": ""
+			  }
+			}
+		  ],
+		  "sensors": {
+			"humi": {
+			  "value": 12.80174,
+			  "time": 1539223135
+			},
+			"pir": {
+			  "value": 0,
+			  "time": 1539223135
+			},
+			"co2": {
+			  "value": 442,
+			  "time": 1539223135
+			}
+		}
+	}
+}

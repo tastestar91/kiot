@@ -1,0 +1,4 @@
+Started kys_redis.
+SUCCESS: [Redis/GET]: ir-sensor-data-monitor/v1/memstore:ir-mon/merges/v1/config:{"testSid1":[{"from":"testSid1","to":"testSid2"}],"kw-isep1":[{"from":"kw-isep1","to":"kw-iskp1"},{"from":"kw-isep1","to":"kw-iske1"}],"kw-iskp1":[{"from":"kw-isep1","to":"kw-iskp1"}],"kw-iske1":[{"from":"kw-isep1","to":"kw-iske1"}],"kw-osep1":[{"from":"kw-osep1","to":"kw-oskp1"},{"from":"kw-osep1","to":"kw-oske1"}],"kw-oskp1":[{"from":"kw-osep1","to":"kw-oskp1"}],"kw-oske1":[{"from":"kw-osep1","to":"kw-oske1"}]}
+Disconnected from all servers and released all resources
+Stopped kys_redis.

@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * api : oaq.api
+ * param : qday(yyyymmdd)
+ * return : csv
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+check_auth();
+check_param();
+$data = get_kiot_data($kiot_api['OAQ'], $kiot_api_sensor['OAQ']);
+return_kiot_data($data, $kiot_api_sensor['OAQ']);
+
+?>

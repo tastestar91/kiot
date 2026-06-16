@@ -1,0 +1,85 @@
+<?php
+
+/**
+ * api : push_5m_avg.api
+ * return : json
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+// ip check
+check_auth();
+
+// global var
+$result_arr = array( 'result'		=> 0,
+		     'result_message'	=> null,
+		     'param'		=> array(),
+		     'count'		=> null,
+		     'data'		=> array()
+);
+
+
+/* get iaq/oaq 5m avg data */
+
+$url_iaq_1 = "http://kiototsdb.kweather.co.kr:24242/api/query?start=5m-ago&m=sum:0all-avg-none:kw-iaq-sensor-kiot{serial=*,sensor=pm10|pm25|temp|humi|co2|voc}";
+$url_iaq_2 = "http://kiototsdb.kweather.co.kr:24242/api/query?start=5m-ago&m=sum:0all-avg-none:kw-iaq-sensor-kiot{serial=*,sensor=cici_pm10|cici_pm25|cici_temp|cici_humi|cici_co2|cici_voc}";
+$url_oaq = "http://kiototsdb.kweather.co.kr:24242/api/query?start=5m-ago&m=sum:0all-avg-none:kw-oaq-sensor-kiot{serial=*,sensor=pm10|pm25|temp|humi|coci_pm10|coci_pm25|coci_temp|coci_humi}";
+
+$kiot_data = array();
+$kiot_data['iaq1'] = get_kiot_data($url_iaq_1);
+$kiot_data['iaq2'] = get_kiot_data($url_iaq_2);
+$kiot_data['oaq'] = get_kiot_data($url_oaq);
+
+if (is_null($kiot_data['iaq1']) && is_null($kiot_data['iaq2']) && is_null($kiot_data['oaq'])) {
+	error_log('get_stdata: get_kiot_data error, url=' . $url);
+	$result_arr['result_message'] = 'server error: get_kiot_data';
+	disp_result();
+	return;
+}
+
+/* make return data */
+$sensor_arr_iaq = array('pm25', 'pm10', 'temp', 'humi', 'co2', 'voc');
+$sensor_arr_oaq = array('pm25', 'pm10', 'temp', 'humi');
+$data = array();
+
+foreach ($kiot_data['iaq1'] as $key => $tags) {
+	$serial = $tags['tags']['serial'];
+	$sensor = $tags['tags']['sensor'];
+	$dps = array_keys($tags['dps'])[0];
+	$value = array_values($tags['dps'])[0];
+
+	$data[$serial][$sensor] = get_sensor_round($sensor, $value);
+}
+foreach ($kiot_data['iaq2'] as $key => $tags) {
+	$serial = $tags['tags']['serial'];
+	$sensor = $tags['tags']['sensor'];
+	$dps = array_keys($tags['dps'])[0];
+	$value = array_values($tags['dps'])[0];
+
+	$data[$serial][$sensor] = get_sensor_round($sensor, $value);
+}
+foreach ($kiot_data['oaq'] as $key => $tags) {
+	$serial = $tags['tags']['serial'];
+	$sensor = $tags['tags']['sensor'];
+	$dps = array_keys($tags['dps'])[0];
+	$value = array_values($tags['dps'])[0];
+
+	$data[$serial][$sensor] = get_sensor_round($sensor, $value);
+}
+unset($kiot_data);
+
+$i = 0;
+foreach ($data as $key => $value) {
+	$tmp = array();
+	$tmp['serial'] = $key;
+	$result_arr['data'][$i++] = array_merge($tmp, $value);
+}
+unset($data);
+$result_arr['count'] = $i;
+
+$result_arr['result'] = 1;
+$result_arr['result_message'] = 'success';
+disp_result();
+
+?>

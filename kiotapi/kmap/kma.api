@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * api : kma.api
+ * return : json
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+$rows = file_get_contents('./kma_sample.json', true);
+
+header('Content-Type: application/json; charset=utf-8');
+echo $rows;
+
+?>

@@ -1,0 +1,76 @@
+<?php
+
+/**
+ * api : get_stdata.api
+ * param : serialNum
+ * param : deviceType (IAQ, OAQ, VENT)
+ * param : searchType (all, hour, day)
+ * param : searchFromDate (yyyy-mm-dd)
+ * param : searchToDate (yyyy-mm-dd)
+ * return : json
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+// ip check
+check_auth();
+
+// global var
+$result_arr = array( 'result'		=> 0,
+		     'result_message'	=> null,
+		     'param'		=> array(),
+		     'count'		=> null,
+		     'data'		=> array()
+);
+
+$device_array = array('IAQ','OAQ','VENT', 'IAQ-BEEMS','VENT-BEEMS','CLEANER-BEEMS','AIRCON-BEEMS');
+
+/* param check */
+$result_arr['param']['serialNum'] = $_GET['serialNum'];
+$result_arr['param']['deviceType'] = $_GET['deviceType'];
+$result_arr['param']['searchType'] = $_GET['searchType'];
+$result_arr['param']['searchFromDate'] = $_GET['searchFromDate'];
+$result_arr['param']['searchToDate'] = $_GET['searchToDate'];
+
+if (empty($result_arr['param']['serialNum'])) {
+	$result_arr['result_message'] = 'param error: serialNum';
+	disp_result();
+}
+if (!in_array($result_arr['param']['deviceType'], $device_array)) {
+	$result_arr['result_message'] = 'param error: deviceType';
+	disp_result();
+}
+if (!in_array($result_arr['param']['searchType'], array('all','hour','day','visitor','pmraw'))) {
+	$result_arr['result_message'] = 'param error: searchType';
+	disp_result();
+}
+if (strlen($result_arr['param']['searchFromDate'])!=10) {
+	$result_arr['result_message'] = 'param error: searchFromDate';
+	disp_result();
+}
+if (strlen($result_arr['param']['searchToDate'])!=10) {
+	$result_arr['result_message'] = 'param error: searchToDate';
+	disp_result();
+}
+if ($result_arr['param']['searchFromDate']>$result_arr['param']['searchToDate']) {
+	$result_arr['result_message'] = 'param error: searchFromDate > searchToDate';
+	disp_result();
+}
+
+$date1 = date_create($result_arr['param']['searchFromDate']);
+$date2 = date_create($result_arr['param']['searchToDate']);
+$interval = $date1->diff($date2);
+if ($interval->days > 31) {
+	$result_arr['result_message'] = 'param error: exceed search date period';
+	disp_result();
+}
+
+/* get data & return result */
+get_stdata();
+
+$result_arr['result'] = 1;
+$result_arr['result_message'] = 'success';
+disp_result();
+
+?>

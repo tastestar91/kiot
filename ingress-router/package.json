@@ -1,0 +1,32 @@
+{
+  "name": "ingress-router",
+  "version": "2.1.0",
+  "description": "Ingress-router for Big-data clusters",
+  "author": "Dongwoo Kwon <dwkwon80@gmail.com>",
+  "license": "UNLICENSED",
+  "keywords": [
+    "big data",
+    "cluster",
+    "router",
+    "load balancer",
+    "processor"
+  ],
+  "main": "app.js",
+  "scripts": {
+    "start": "NODE_ENV=production UV_THREADPOOL_SIZE=32 DEBUG=ingress-router:* node .",
+    "debug": "NODE_ENV=production UV_THREADPOOL_SIZE=32 DEBUG=ingress-router:* node ."
+  },
+  "dependencies": {
+    "64": "^0.2.0",
+    "asmcrypto-lite": "^1.1.0",
+    "debug": "^4.1.1",
+    "express": "^4.17.1",
+    "ioredis": "^4.16.0",
+    "lodash": "^4.17.19",
+    "mongodb": "^3.5.4",
+    "mqtt": "^3.0.0",
+    "node-zookeeper-client": "^1.1.0",
+    "request": "^2.88.2",
+    "saslprep": "^1.0.3"
+  }
+}

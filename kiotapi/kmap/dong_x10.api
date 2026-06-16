@@ -1,0 +1,61 @@
+<?php
+
+/**
+ * api : dong.api
+ * return : json
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+$db_host = "220.95.238.44";
+$db_port = 3306;
+$db_userid="kiot";
+$db_pass="zpdliot1!";
+$db_name="re_kiot";
+$rows = array();
+
+/* mysql connection */
+$mysqli = new mysqli($db_host, $db_userid, $db_pass, $db_name, $db_port);
+if (mysqli_connect_errno()) {
+	error_log('mysqli connec error');
+	disp_result($rows);
+	exit();
+}
+if (!$mysqli->set_charset("utf8")) {
+	$mysqli->close();
+	error_log('mysqli set_charset error');
+	disp_result($rows);
+	exit();
+}
+if (!$mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE)) {
+	$mysqli->close();
+	error_log('mysqli options error');
+	disp_result($rows);
+	exit();
+}
+
+$result = $mysqli->query("SELECT a.dcode as d, a.lat as la, a.lon as lo, b.pm10_value as p10, b.pm25_value as p25 FROM TB_DONG_INFO a, TB_DONG_DUST_DATA b WHERE a.dcode=b.dcode;");
+$rows = $result->fetch_all(MYSQLI_ASSOC);
+
+$mysqli->close();
+
+$tmp = array();
+$j = 0;
+for ($i=0; $i<10; $i++) {
+	foreach ($rows as $row) {
+		if ($j > 0) {
+			$row['d'] = sprintf("%s%02d", substr($row['d'], 0, -2), $j);
+			$row['la'] = sprintf("%s%02d%s", substr($row['la'], 0, 7), (substr($row['la'], 7, 2)+$j)%100, substr($row['la'], 9));
+			$row['lo'] = sprintf("%s%02d%s", substr($row['lo'], 0, 7), (substr($row['lo'], 7, 2)+$j)%100, substr($row['lo'], 9));
+			$row['p10'] = random_int(($row['p10']-5)<0 ? 0:$row['p10']-5, $row['p10']+5);
+			$row['p25'] = random_int(($row['p25']-5)<0 ? 0:$row['p25']-5, $row['p25']+5);
+		}
+		$tmp[] = $row;		
+	}
+	$j++;
+}
+
+disp_result($tmp);
+
+?>

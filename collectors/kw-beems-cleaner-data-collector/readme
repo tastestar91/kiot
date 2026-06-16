@@ -1,0 +1,1 @@
+ps -ef|grep kw-vent-data-collector.py|grep -v grep|awk '{print $2}'|xargs kill -9

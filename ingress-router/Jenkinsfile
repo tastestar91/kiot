@@ -1,0 +1,25 @@
+pipeline {
+    environment {
+        registry = "kwall1:35000/kw-platform-ingress-router"
+        registryCredential= 'docker-registry'
+        dockerImage = ''
+    }
+    agent any
+    tools {
+        dockerTool 'Docker'
+    }
+    stages {    
+        stage('SCM Checkout') {
+            steps{
+                checkout scm
+            }
+        }
+        stage('Build docker image') {
+            steps{
+                script {
+                    dockerImage = docker.build("kwall1:35000/kw-platform-ingress-router:$BUILD_NUMBER", "-f ./ingress-router/Dockerfile ./ingress-router")
+                }
+            }
+        }
+    }    
+}

@@ -1,0 +1,11 @@
+<?php
+
+$token = array(
+	'con_access_token'		=> "lwnDLYU0Pq3snE9WjnaeczYedzHFkNzfZmDaq8pikD8=",
+	'con_access_token_expiredate'	=> date('Y') . "-12-31 23:59:59"
+);
+
+header('Content-Type: application/json; charset=utf-8');
+echo json_encode($token);
+
+?>

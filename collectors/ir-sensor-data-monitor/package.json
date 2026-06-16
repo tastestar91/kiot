@@ -1,0 +1,29 @@
+{
+  "name": "ir-sensor-data-monitor",
+  "version": "2.0.0",
+  "description": "Ingress-router Sensor Data Monitor",
+  "main": "ir-sensor-data-monitor.js",
+  "scripts": {
+    "start": "NODE_ENV=production DEBUG=ir-sensor-data-monitor:* node .",
+    "debug": "NODE_ENV=production DEBUG=ir-sensor-data-monitor:* node ."
+  },
+  "keywords": [
+    "sensor",
+    "monitor",
+    "IoT",
+    "bigdata"
+  ],
+  "author": "Dongwoo Kwon <dwkwon80@gmail.com>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "debug": "^4.1.1",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "ioredis": "^4.16.2",
+    "lodash": "^4.17.15",
+    "node-zookeeper-client": "^1.1.0",
+    "request": "^2.88.2",
+    "request-promise-native": "^1.0.9"
+  }
+}

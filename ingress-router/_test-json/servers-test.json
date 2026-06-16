@@ -1,0 +1,13 @@
+{
+	"timestamp": 1543360770,
+	"dataset": [
+		{
+			"service": { "id": "smarthome-opentsdb-new-metric" },
+			"data": "put test-ir 1543360770 50 type=int"
+		},
+		{
+			"service": { "id": "smarthome-opentsdb-old-metric" },
+			"data": "put test-ir 1543360770 70 type=int"
+		}
+	]
+}

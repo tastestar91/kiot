@@ -1,0 +1,19 @@
+{
+	"dataset": [
+		{
+			"service": {
+				"id": "server_kwkiotcluster-mqtt-seq"
+			},
+			"data": [
+				{
+					"channel": [ "kerv/ack/KWV-ST1_1900001" ],
+					"data": "CCMDP10="
+				},
+				{
+					"channel": [ "kerv/ack/KWV-ST1_1900001" ],
+					"data": "CCMDW60="
+				}
+			]
+		}
+	]
+}

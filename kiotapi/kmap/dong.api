@@ -1,0 +1,46 @@
+<?php
+
+/**
+ * api : dong.api
+ * return : json
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+$db_host = "220.95.238.44";
+$db_port = 3306;
+$db_userid="kiot";
+$db_pass="zpdliot1!";
+$db_name="re_kiot";
+$rows = array();
+
+/* mysql connection */
+$mysqli = new mysqli($db_host, $db_userid, $db_pass, $db_name, $db_port);
+if(mysqli_connect_errno()) {
+	error_log('mysqli connec error');
+	disp_result($rows);
+	exit();
+}
+if (!$mysqli->set_charset("utf8")) {
+	$mysqli->close();
+	error_log('mysqli set_charset error');
+	disp_result($rows);
+	exit();
+}
+if (!$mysqli->options(MYSQLI_OPT_INT_AND_FLOAT_NATIVE, TRUE)) {
+	$mysqli->close();
+	error_log('mysqli options error');
+	disp_result($rows);
+	exit();
+}
+
+//$result = $mysqli->query("SELECT a.dcode, a.dname, a.lat, a.lon, b.pm10_value, b.pm25_value, b.up_date  FROM TB_DONG_INFO a, TB_DONG_DUST_DATA b WHERE a.dcode=b.dcode;");
+$result = $mysqli->query("SELECT a.dcode as d, a.lat as la, a.lon as lo, b.pm10_value as p10, b.pm25_value as p25 FROM TB_DONG_INFO a, TB_DONG_DUST_DATA b WHERE a.dcode=b.dcode;");
+$rows = $result->fetch_all(MYSQLI_ASSOC);
+
+$mysqli->close();
+
+disp_result($rows);
+
+?>

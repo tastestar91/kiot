@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * api : get_irdata.api
+ * param : searchType (0:station, 1:user, 2:group)
+ * param : searchParam (0:serial number, 1:user id, 2:group id)
+ * param : deviceType (IAQ, OAQ, VENT)
+ * return : json
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+// ip check
+check_auth();
+
+// global var
+$result_arr = array( 'result'		=> 0,
+		     'result_message'	=> null,
+		     'param'		=> array(),
+		     'count'		=> null,
+		     'data'		=> array()
+);
+
+
+$device_array = array('IAQ','OAQ','VENT', 'IAQ-BEEMS','VENT-BEEMS','CLEANER-BEEMS','AIRCON-BEEMS');
+
+/* param check */
+$result_arr['param']['searchType'] = $_GET['searchType'];
+$result_arr['param']['searchParam'] = $_GET['searchParam'];
+$result_arr['param']['deviceType'] = $_GET['deviceType'];
+
+if (!in_array($result_arr['param']['searchType'], array('0','1','2'))) {
+	$result_arr['result_message'] = 'param error: searchType';
+	disp_result();
+}
+if (empty($result_arr['param']['searchParam'])) {
+	$result_arr['result_message'] = 'param error: searchParam';
+	disp_result();
+}
+if ($result_arr['param']['searchType']==0 && !in_array($result_arr['param']['deviceType'], $device_array)) {
+	$result_arr['result_message'] = 'param error: deviceType';
+	disp_result();
+}
+
+/* get data & return result */
+get_irdata();
+
+$result_arr['result'] = 1;
+$result_arr['result_message'] = 'success';
+disp_result();
+
+?>

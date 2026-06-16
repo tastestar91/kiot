@@ -1,0 +1,26 @@
+{
+	"dataset": [
+		{
+			"service": {
+				"id": "server_kwkiotcluster-redis"
+			},
+			"data": [
+				{
+					"key": "ingress-router/v1/memstore:kw/oaq/pm/v1/V0",
+					"value": "{\"serial\":\"V02Q1940046\",\"update\":1585636200,\"sensors\":{\"pm10\":{\"offset\":16.56,\"ratio\":1.85},\"pm25\":{\"offset\":1.63,\"ratio\":0.30}}}"
+				}
+			]
+		},
+		{
+			"service": {
+				"id": "server_kwkiotcluster-redis-pub"
+			},
+			"data": [
+				{
+					"channel": [ "ingress-router/v1/memstore.put:kw/oaq/pm/v1/V0" ],
+					"data": "{\"serial\":\"V02Q1940046\",\"update\":1585636200,\"sensors\":{\"pm10\":{\"offset\":16.56,\"ratio\":1.85},\"pm25\":{\"offset\":1.63,\"ratio\":0.30}}}"
+				}
+			]
+		}
+	]
+}

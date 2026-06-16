@@ -1,0 +1,57 @@
+{
+	"grant_type": "client_credentials",
+	"sensor_data": {
+		"timestamp": 1540346735,
+		"auth": {
+			"deviceId": "1234567890ABCDEF",
+			"accessToken": "something"
+		},
+		"service": {
+			"id": "lab-test-opentsdb-zk-rr"
+		},
+		"data": {
+			"node_info": [
+				{
+				  "id": "B8:27:EB:99:99:98"
+				},
+				{
+				  "info": {
+					"seq": 1,
+					"ip": "192.168.101.101",
+					"mac": "B8:27:EB:99:99:97",
+					"next_hop": "B8:27:EB:05:68:85",
+					"dmesg": "",
+					"cpu_5m": "0.71",
+					"cpu_15m": "0.72",
+					"cpu_temp": "56.920",
+					"cpu_1m": "0.71",
+					"mode": "gateway",
+					"vap": ""
+				  }
+				}
+			  ],
+			  "sensors": {
+				"pir": {
+				  "value": 20,
+				  "time": 1540346735
+				},
+				"co2": {
+				  "value": 220,
+				  "time": 1540346735
+				},
+				"temperature": {
+				  "value": 20,
+				  "time": 1540346735
+				},
+				"dewpoint": {
+				  "value": -5.014328342374673,
+				  "time": 1540346735
+				},
+				"humidity": {
+				  "value": 30,
+				  "time": 1540346735
+				}
+			}
+		}
+	}
+}

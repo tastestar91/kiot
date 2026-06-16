@@ -1,0 +1,68 @@
+{
+  "collector": {
+    "ingressRouter": {
+      "address": ["10.100.100.110:20001"],
+      "apiPathV1": {
+        "sensors": "/v1/sensors"
+      }
+    },
+    "redis": {
+      "address": ["kiot1:36379,kiot3:36379,kiot4:36379,kiot5:36379,kiot6:36379"],
+      "password": null,
+      "dataChannelV1": {
+        "get": "ingress-router/v1/sensors.get:",
+        "post": "data-collector-manager/v1/servers.post:"
+      }
+    },
+    "zookeeper": {
+      "address": ["kiot1:32181,kiot2:32181,kiot3:32181,kiot4:32181,kiot5:32181"],
+      "monitorPathV1": {
+        "sensors": "/ingress-router/v1/monitor/sensors"
+      }
+    }
+  },
+  "enricher": {
+    "ingressRouter": {
+      "address": ["10.100.100.110:20001"],
+      "apiPathV1": {
+        "sensors": "/v1/sensors"
+      }
+    },
+    "redis": {
+      "address": ["kiot1:36379,kiot3:36379,kiot4:36379,kiot5:36379,kiot6:36379"],
+      "password": null,
+      "dataChannelV1": {
+        "get": "ingress-router/v1/enrichers.get:",
+        "post": "data-collector-manager/v1/enrichers.post:"
+      }
+    }
+  },
+  "servers": {
+    "kwKiotCluster": {
+      "redis": {
+        "address": ["kiot1:36379,kiot3:36379,kiot4:36379,kiot5:36379,kiot6:36379"],
+        "password": null
+      },
+      "mqtt": {
+        "address": ["kiot4:38616", "kiot5:38616", "kiot6:38616"],
+        "username": null,
+        "password": null
+      },
+      "opentsdb": {
+        "address": ["10.100.100.100:24242"]
+      },
+      "opentsdbWo": {
+        "address": ["10.100.100.101:24243"]
+      },
+      "mysql": {
+        "address": ["kiot5:3306"],
+        "username": "kiot",
+        "password": "zpdliot1!"
+      }
+    }
+  },
+  "telegram": {
+    "token": "",
+    "chat_id": "5257584599"
+  }
+}

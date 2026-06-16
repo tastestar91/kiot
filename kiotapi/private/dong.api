@@ -1,0 +1,17 @@
+<?php
+
+/**
+ * api : dongdust.api
+ * param : qday(yyyymmdd)
+ * return : csv
+ */
+
+include "conf.inc";
+include "lib.inc";
+
+check_auth();
+check_param();
+$data = get_dong_data($kiot_api['DONG'], $kiot_api_sensor['DONG']);
+return_dong_data($data, $kiot_api_sensor['DONG']);
+
+?>

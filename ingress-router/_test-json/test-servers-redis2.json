@@ -1,0 +1,26 @@
+{
+	"dataset": [
+		{
+			"service": {
+				"id": "server_kwkiotcluster-redis"
+			},
+			"data": [
+				{
+					"key": "ingress-router/v1/memstore:kw/iaq/cmd/v1/IAQP2000001",
+					"value": "{\"serial\": \"IAQP2000001\", \"update\": 1585636200, \"ai_mode_devices\": 0, \"vent\": [{\"model\": \"TAES\", \"serial\": \"VENTTS100001\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100001\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100002\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100002\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100003\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100003\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100004\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100004\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100005\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100005\"}}]}"
+				}
+			]
+		},
+		{
+			"service": {
+				"id": "server_kwkiotcluster-redis-pub"
+			},
+			"data": [
+				{
+					"channel": [ "ingress-router/v1/memstore.put:kw/iaq/cmd/v1/IAQP2000001" ],
+					"data": "{\"serial\": \"IAQP2000001\", \"update\": 1585636200, \"ai_mode_devices\": 0, \"vent\": [{\"model\": \"TAES\", \"serial\": \"VENTTS100001\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100001\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100002\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100002\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100003\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100003\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100004\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100004\"}}, {\"model\": \"TAES\", \"serial\": \"VENTTS100005\", \"ai_mode\": 0, \"channel\": {\"req\": \"kerv/req/VENTTS100005\"}}]}"
+				}
+			]
+		}
+	]
+}

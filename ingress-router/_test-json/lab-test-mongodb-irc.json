@@ -1,0 +1,38 @@
+{
+	"timestamp": 1540346735,
+	"auth": {
+		"deviceId": "1234567890ABCDEF",
+		"accessToken": "something"
+	},
+	"service": {
+		"id": "lab-test-irc"
+	},
+	"data": {
+		"node_info": [
+			{
+			  "id": "B8:27:EB:99:99:98"
+			},
+			{
+			  "info": {
+				"seq": 1,
+				"ip": "192.168.101.101",
+				"mac": "B8:27:EB:99:99:98",
+				"next_hop": "B8:27:EB:05:68:85",
+				"dmesg": "",
+				"cpu_5m": "0.71",
+				"cpu_15m": "0.72",
+				"cpu_temp": "56.920",
+				"cpu_1m": "0.71",
+				"mode": "gateway",
+				"vap": ""
+			  }
+			}
+		  ],
+		  "sensors": {
+			"irc": {
+			  "value": "data_data_data",
+			  "time": 1540346735
+			}
+		  }
+	}
+}

@@ -1,0 +1,411 @@
+#!/usr/bin/env python3
+
+#-------------------------------------------------------------------
+# kiot-corr-pm-collector [Python3/TAB]
+#
+# yskwon, 2020-06-01
+#-------------------------------------------------------------------
+
+import json
+import signal
+import sys
+import time
+import traceback
+
+from datetime import datetime
+import requests
+import schedule
+import random
+
+import pymysql.cursors
+from rediscluster import RedisCluster
+
+# Global constants
+CONFIG_FILE = "/opt/apps/apps-config.json"
+
+# Load configurations
+try:
+	with open(CONFIG_FILE, 'r') as f:
+		conf = json.load(f)
+
+	# Redis
+	redis_startup_nodes = []
+	for address in conf["servers"]["kwKiotCluster"]["redis"]["address"][0].split(","):
+		address = address.split(":")
+		redis_startup_nodes.append({"host": address[0], "port": address[1]})
+
+	rc = RedisCluster(startup_nodes=redis_startup_nodes, decode_responses=True,
+		password=conf["servers"]["kwKiotCluster"]["redis"]["password"])
+
+	# MySQL
+	address = conf["servers"]["kwKiotCluster"]["mysql"]["address"][0].split(":")
+	username = conf["servers"]["kwKiotCluster"]["mysql"]["username"]
+	password = conf["servers"]["kwKiotCluster"]["mysql"]["password"]
+	mysql_connection = pymysql.connect(host=address[0], port=int(address[1]),
+			user=username, password=password, db="re_kiot", charset='utf8mb4',
+			cursorclass=pymysql.cursors.DictCursor, autocommit=False)
+
+except Exception:
+	traceback.print_exc()
+	sys.exit(1)
+
+
+def receive_signal(signal_number, frame):
+	print("Received signal: " + str(signal_number))
+	sys.exit()
+
+
+def release():
+	print("Disconnected from all servers and released all resources")
+	# TODO: Close server connections and release all resources
+	mysql_connection.close()
+
+
+# Update Platform Info
+def update_oaq_pm_info(nowdate, cor_data):
+	#print(f"update_oaq_pm_info: start, {cor_data['serial']}")
+
+	timestamp = int(time.mktime(
+		datetime.strptime(nowdate, "%Y%m%d%H%M").timetuple()))
+
+	new_data = {
+		"serial": cor_data['serial'],
+		"update": timestamp,
+		"sensors": {
+			"pm10": {
+				"offset": cor_data['pm10_offset'],
+				"ratio": cor_data['pm10_ratio']
+			},
+			"pm25": {
+				"offset": cor_data['pm25_offset'],
+				"ratio": cor_data['pm25_ratio']
+			}
+		}
+	}
+
+	new_data_str = json.dumps(new_data)
+
+	#----- Store key-value data in Redis -------------------------------------
+	key_name = "ingress-router/v1/memstore:kw/oaq/pm/v1/" + new_data["serial"]
+
+	rc.set(key_name, new_data_str)
+	result = rc.get(key_name)
+	#print(f"SUCCESS: [Redis/GET]: {key_name}:{result}")
+
+	#----- Publish data to a Redis channel -----------------------------------
+	channel_name = "ingress-router/v1/memstore.put:kw/oaq/pm/v1/" + new_data["serial"]
+
+	rc.publish(channel_name, new_data_str)
+	#print(f"SUCCESS: [Redis/PUB]: " + channel_name)
+
+
+
+# Get Dong Info
+def get_oaq_info():
+	print("get_oaq_info: start")
+
+	rows = {}
+
+	with mysql_connection.cursor() as cursor:
+		try:
+			sql = """
+SELECT serial, map_code, map_type, distance
+FROM TB_PMCOR_MAP_INFO
+ORDER BY serial, distance
+"""
+			cursor.execute(sql)
+			dbrows = cursor.fetchall()
+		except Exception as e:
+			traceback.print_exc()
+
+	mysql_connection.commit()
+
+	cnt = 0
+	for data in dbrows:
+		if data['serial'] in rows:
+			rows[data['serial']][cnt] = data
+		else:
+			cnt = 0
+			rows[data['serial']] = {}
+			rows[data['serial']][cnt] = data
+		cnt += 1
+
+	print(f"get_oaq_info: rows={len(rows)}")
+	return rows
+
+
+# Get OAQ Data (OAQ+DOT)
+def get_oaq_data():
+	print("get_oaq_data: start")
+
+	rows = {}
+
+	# DOT Data
+	r = requests.get('http://kiototsdb.kweather.co.kr:24242/api/query?start=4h-ago&end=1h-ago&m=avg:3h-avg-none:kw-oaq-sensor-dot{serial=*,sensor=pm10|pm25}')
+	if r.status_code == 200:
+		json_data = r.json()
+		for data in json_data:
+			if len(data['dps']) == 1:
+				if data['tags']['serial'] in rows:
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0], 2)
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+				else:
+					rows[data['tags']['serial']] = {}
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0], 2)
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+	else:
+		print(f"get_oaq_data: fail, status_code={r.status_code}")
+
+	print(f"get_oaq_data: dot rows={len(rows)}")
+
+
+	# OAQ Data
+	r = requests.get('http://kiototsdb.kweather.co.kr:24242/api/query?start=4h-ago&end=1h-ago&m=avg:3h-avg-none:kw-oaq-sensor-kiot{serial=*,sensor=pm10|pm25}')
+	if r.status_code == 200:
+		json_data = r.json()
+		for data in json_data:
+			if len(data['dps']) == 1:
+				if data['tags']['serial'] in rows:
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0], 2)
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+				else:
+					rows[data['tags']['serial']] = {}
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0], 2)
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+	else:
+		print(f"get_oaq_data: fail, status_code={r.status_code}")
+
+	print(f"get_oaq_data: oaq rows={len(rows)}")
+	return rows
+
+
+# Get AirKorea Data
+def get_airkorea_data():
+	print("get_airkorea_data: start")
+
+	rows = {}
+
+	r = requests.get('http://kiototsdb.kweather.co.kr:24242/api/query?start=4h-ago&m=avg:3h-avg-none:airkorea-aq{air_id=*,sensor=pm10|pm25}')
+	if r.status_code == 200:
+		json_data = r.json()
+		for data in json_data:
+			dps_cnt = len(data['dps'])
+			if dps_cnt >= 1:
+				if data['tags']['air_id'] in rows:
+					rows[data['tags']['air_id']][data['tags']['sensor']] = round(list(data['dps'].values())[dps_cnt-1], 2)
+					rows[data['tags']['air_id']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[dps_cnt-1])).strftime("%Y%m%d%H%M")
+				else:
+					rows[data['tags']['air_id']] = {}
+					rows[data['tags']['air_id']][data['tags']['sensor']] = round(list(data['dps'].values())[dps_cnt-1], 2)
+					rows[data['tags']['air_id']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[dps_cnt-1])).strftime("%Y%m%d%H%M")
+	else:
+		print(f"get_airkorea_data: fail, status_code={r.status_code}")
+
+	print(f"get_airkorea_data: rows={len(rows)}")
+	return rows
+
+
+# Make Oaq Correct Data
+def make_oaq_cor_data(oaq_info, oaq_data, airkorea_data):
+	print("make_oaq_cor_data: start")
+
+	rows = {}
+
+	for key in oaq_info:
+		cnt = 0
+		idw_pm10_wr = 0
+		idw_pm25_wr = 0
+		idw_w = 0
+		map_data = {}
+
+		if key in oaq_data and 'pm10' in oaq_data[key] and 'pm25' in oaq_data[key] and oaq_data[key]['pm10'] > 0 and oaq_data[key]['pm25'] > 0:
+			for subkey in oaq_info[key]:
+				if oaq_info[key][subkey]['map_code'] in  airkorea_data and 'pm10' in airkorea_data[oaq_info[key][subkey]['map_code']] and 'pm25' in airkorea_data[oaq_info[key][subkey]['map_code']]:
+					map_data[cnt] = oaq_info[key][subkey]
+					map_data[cnt]['pm10_3h_avg'] = airkorea_data[oaq_info[key][subkey]['map_code']]['pm10']
+					map_data[cnt]['pm25_3h_avg'] = airkorea_data[oaq_info[key][subkey]['map_code']]['pm25']
+					map_data[cnt]['tm'] = airkorea_data[oaq_info[key][subkey]['map_code']]['tm']
+
+					idw_pm10_wr += (airkorea_data[oaq_info[key][subkey]['map_code']]['pm10'] / oaq_info[key][subkey]['distance']**2)
+					idw_pm25_wr += (airkorea_data[oaq_info[key][subkey]['map_code']]['pm25'] / oaq_info[key][subkey]['distance']**2)
+					idw_w += (1 / oaq_info[key][subkey]['distance']**2)
+					cnt += 1
+				if cnt == 3:
+					break
+
+			if cnt > 0:
+				rows[key] = {}
+
+				pm10 = round(idw_pm10_wr / idw_w, 2)
+				pm25 = round(idw_pm25_wr / idw_w, 2)
+
+				pm10_ratio = round(pm10 / oaq_data[key]['pm10'], 2)
+				if pm10_ratio >= 2:
+					pm10_ratio_raw = pm10_ratio
+					pm10_ratio = round(random.uniform(1.3, 1.95), 2)
+				else:
+					pm10_ratio_raw = 0
+
+				pm25_ratio = round(pm25 / oaq_data[key]['pm25'], 2)
+				if pm25_ratio >= 2:
+					pm25_ratio_raw = pm25_ratio
+					pm25_ratio = round(random.uniform(1.3, 1.95), 2)
+				else:
+					pm25_ratio_raw = 0
+
+				pm10_offset = round(pm10 - oaq_data[key]['pm10'])
+				pm25_offset = round(pm25 - oaq_data[key]['pm25'])
+
+				rows[key]['cor_data'] = {
+					'serial': key, 
+					'map_type': oaq_info[key][0]['map_type'],
+					'pm10_idw': pm10,
+					'pm10_3h_avg': oaq_data[key]['pm10'],
+					'pm10_ratio': pm10_ratio,
+					'pm10_ratio_raw': pm10_ratio_raw,
+					'pm10_offset': pm10_offset,
+					'pm25_idw': pm25,
+					'pm25_3h_avg': oaq_data[key]['pm25'],
+					'pm25_ratio': pm25_ratio,
+					'pm25_ratio_raw': pm25_ratio_raw,
+					'pm25_offset': pm25_offset
+				}
+
+				rows[key]['map_data'] = map_data
+
+	print(f"make_oaq_cor_data: rows={len(rows)}")
+	return rows
+
+
+
+# Update Oaq Cor Data
+def update_oaq_cor_data(nowdate, oaq_cor_data):
+	print("update_oaq_cor_data: start")
+
+	sql_update = """
+		INSERT INTO TB_PMCOR_DATA (serial, map_type, pm10_idw, pm10_3h_avg, pm10_ratio, pm10_ratio_raw, pm10_offset, pm25_idw, pm25_3h_avg, pm25_ratio, pm25_ratio_raw, pm25_offset, up_date)
+		VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+		ON DUPLICATE KEY UPDATE
+			map_type = %s,
+			pm10_idw = %s,
+			pm10_3h_avg = %s,
+			pm10_ratio = %s,
+			pm10_ratio_raw = %s,
+			pm10_offset = %s,
+			pm25_idw = %s,
+			pm25_3h_avg = %s,
+			pm25_ratio = %s,
+			pm25_ratio_raw = %s,
+			pm25_offset = %s,
+			up_date = %s
+"""
+
+	sql_map_delete = "DELETE FROM TB_PMCOR_MAP_DATA WHERE serial=%s"
+
+	sql_map_insert = """
+		INSERT INTO TB_PMCOR_MAP_DATA (serial, map_code, map_type, distance, pm10_3h_avg, pm25_3h_avg, up_date)
+		VALUES (%s, %s, %s, %s, %s, %s, %s)
+"""
+
+	with mysql_connection.cursor() as cursor:
+		try:
+
+			for key in oaq_cor_data:
+
+				# update oaq_cor_data
+				cursor.execute(sql_update,(
+								oaq_cor_data[key]['cor_data']['serial'],
+								oaq_cor_data[key]['cor_data']['map_type'],
+								oaq_cor_data[key]['cor_data']['pm10_idw'],
+								oaq_cor_data[key]['cor_data']['pm10_3h_avg'],
+								oaq_cor_data[key]['cor_data']['pm10_ratio'],
+								oaq_cor_data[key]['cor_data']['pm10_ratio_raw'],
+								oaq_cor_data[key]['cor_data']['pm10_offset'],
+								oaq_cor_data[key]['cor_data']['pm25_idw'],
+								oaq_cor_data[key]['cor_data']['pm25_3h_avg'],
+								oaq_cor_data[key]['cor_data']['pm25_ratio'],
+								oaq_cor_data[key]['cor_data']['pm25_ratio_raw'],
+								oaq_cor_data[key]['cor_data']['pm25_offset'],
+								nowdate,
+								oaq_cor_data[key]['cor_data']['map_type'],
+								oaq_cor_data[key]['cor_data']['pm10_idw'],
+								oaq_cor_data[key]['cor_data']['pm10_3h_avg'],
+								oaq_cor_data[key]['cor_data']['pm10_ratio'],
+								oaq_cor_data[key]['cor_data']['pm10_ratio_raw'],
+								oaq_cor_data[key]['cor_data']['pm10_offset'],
+								oaq_cor_data[key]['cor_data']['pm25_idw'],
+								oaq_cor_data[key]['cor_data']['pm25_3h_avg'],
+								oaq_cor_data[key]['cor_data']['pm25_ratio'],
+								oaq_cor_data[key]['cor_data']['pm25_ratio_raw'],
+								oaq_cor_data[key]['cor_data']['pm25_offset'],
+								nowdate )
+						)
+
+				# delete map_data
+				cursor.execute(sql_map_delete, (oaq_cor_data[key]['cor_data']['serial']))
+
+				for subkey in oaq_cor_data[key]['map_data']:
+					# insert map_data
+					cursor.execute(sql_map_insert, (
+								oaq_cor_data[key]['map_data'][subkey]['serial'],
+								oaq_cor_data[key]['map_data'][subkey]['map_code'],
+								oaq_cor_data[key]['map_data'][subkey]['map_type'],
+								oaq_cor_data[key]['map_data'][subkey]['distance'],
+								oaq_cor_data[key]['map_data'][subkey]['pm10_3h_avg'],
+								oaq_cor_data[key]['map_data'][subkey]['pm25_3h_avg'],
+								nowdate )
+						)
+
+				# Update Platform Info
+				update_oaq_pm_info(nowdate, oaq_cor_data[key]['cor_data'])
+
+			mysql_connection.commit()
+
+		except Exception as e:
+			traceback.print_exc()
+
+
+	print(f"update_oaq_cor_data: end={len(oaq_cor_data)}")
+
+
+
+# Job to be scheduled
+def job():
+	print("job: start - " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+	nowdate = datetime.now().strftime('%Y%m%d%H%M')
+	print("job: nowdate - " + nowdate)
+
+	oaq_info = get_oaq_info()
+	oaq_data = get_oaq_data()
+	airkorea_data = get_airkorea_data()
+	oaq_cor_data = make_oaq_cor_data(oaq_info, oaq_data, airkorea_data)
+	update_oaq_cor_data(nowdate, oaq_cor_data)
+
+	print("job: end - " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+	print("================================================")
+
+
+# Main
+if __name__ == '__main__':
+	print("Started kiot-corr-pm-collector.")
+
+	signal.signal(signal.SIGHUP, receive_signal)
+	signal.signal(signal.SIGTERM, receive_signal)
+	signal.signal(signal.SIGQUIT, receive_signal)
+
+	try:
+		#job()
+		# Schedule a job
+		schedule.every().hour.at(":00").do(job)
+
+		while True:
+			schedule.run_pending()
+			time.sleep(1)
+	except (KeyboardInterrupt, SystemExit):
+		print("Stopping kiot-corr-pm-collector.")
+	except Exception:
+		traceback.print_exc()
+	finally:
+		release()
+		print("Stopped kiot-corr-pm-collector.")

@@ -1,0 +1,20 @@
+[
+{
+	"metric": "lab-test-opentsdb-none",
+	"tags": {
+		"mac": "6885",
+		"sensor": "test"
+	},
+	"timestamp": 1539318302,
+	"value": 60
+},
+{
+    "metric": "lab-test-opentsdb-none",
+    "tags": {
+        "mac": "6885",
+        "sensor": "test_2"
+    },
+    "timestamp": 1539318302,
+    "value": 80
+}
+]

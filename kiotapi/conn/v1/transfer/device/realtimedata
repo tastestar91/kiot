@@ -1,0 +1,21 @@
+<?php
+
+$inputJSON = file_get_contents('php://input');
+if ($inputJSON === false) {
+	error_log('realtimedata: file_get_contents error');
+	exit;
+}
+
+$input = json_decode($inputJSON, TRUE);
+//if (empty($input) || empty($input['device_id']) || empty($input['results']) || empty($input['results']['cumul_power']) || !is_numeric($input['results']['cumul_power'])) {
+if (empty($input) || empty($input['device_id']) || empty($input['results']) || !isset($input['results']['cumul_power']) || !is_numeric($input['results']['cumul_power'])) {
+	error_log('realtimedata: inputJSON= ' . $inputJSON);
+	//error_log('realtimedata: json_decode error');
+	exit;
+}
+
+include "lib.inc";
+
+call_kiot_api($input['device_id'], $input['results']['cumul_power']);
+
+?>

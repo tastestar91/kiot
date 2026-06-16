@@ -1,0 +1,449 @@
+#!/usr/bin/env python3
+
+#-------------------------------------------------------------------
+# kiot-dong-corr-mapping-proc [Python3/TAB]
+#
+# yskwon, 2020-06-25
+#-------------------------------------------------------------------
+
+import json
+import signal
+import sys
+import time
+import traceback
+from datetime import datetime, timedelta
+
+import pymysql.cursors
+import requests
+import schedule
+
+# Global constants
+CONFIG_FILE = "/opt/apps/apps-config.json"
+MYSQL_DEFAULT_FETCH_ROWS = 20
+HTTP_TIMEOUT = (10, 58)
+
+
+# Load configurations
+try:
+	with open(CONFIG_FILE, 'r') as f:
+		conf = json.load(f)
+
+	# MySQL
+	address = conf["servers"]["kwKiotCluster"]["mysql"]["address"][0].split(":")
+	username = conf["servers"]["kwKiotCluster"]["mysql"]["username"]
+	password = conf["servers"]["kwKiotCluster"]["mysql"]["password"]
+	mysql_connection = pymysql.connect(host=address[0], port=int(address[1]),
+			user=username, password=password, db="re_kiot", charset='utf8mb4',
+			cursorclass=pymysql.cursors.DictCursor, autocommit=False)
+	mysql_connection.close()
+
+except Exception:
+	traceback.print_exc()
+	sys.exit(1)
+
+
+def receive_signal(signal_number, frame):
+	print("Received signal: " + str(signal_number))
+	sys.exit()
+
+
+def release():
+	print("Disconnected from all servers and released all resources")
+	# TODO: Close server connections and release all resources
+
+
+# Get Airkor Info
+def get_airkor_info():
+	print("get_airkor_info: start")
+
+	rows = {}
+
+	with mysql_connection.cursor() as cursor:
+		try:
+			sql = "SELECT air_code, use_yn FROM TB_DONG_AIRKOR_INFO"
+			cursor.execute(sql)
+			dbrows = cursor.fetchall()
+		except Exception as e:
+			traceback.print_exc()
+
+	mysql_connection.commit()
+
+	for data in dbrows:
+		rows[data['air_code']] = data
+
+	print(f"get_airkor_info: rows={len(rows)}")
+	return rows
+
+
+# Get Oaq Info
+def get_oaq_info():
+	print("get_oaq_info: start")
+
+	rows = {}
+
+	with mysql_connection.cursor() as cursor:
+		try:
+			sql = "SELECT serial, use_yn FROM TB_DONG_OAQ_INFO"
+			cursor.execute(sql)
+			dbrows = cursor.fetchall()
+		except Exception as e:
+			traceback.print_exc()
+
+	mysql_connection.commit()
+
+	for data in dbrows:
+		rows[data['serial']] = data
+
+	print(f"get_oaq_info: rows={len(rows)}")
+	return rows
+
+
+# Get AirKorea Data
+def get_airkorea_data():
+	print("get_airkorea_data: start")
+
+	query_day = (datetime.now()-timedelta(days=1)).strftime('%Y/%m/%d')
+	print(f"get_airkorea_data: query_day={query_day}")
+
+	query_url = "http://kiototsdb.kweather.co.kr:24242/api/query?start=" + query_day + "-00:00:00&end=" + query_day + "-23:59:59&m=avg:1d-avg-none:airkorea-aq{air_id=*,sensor=pm10|pm25}"
+	print(f"get_airkorea_data: query_url={query_url}")
+
+	rows = {}
+
+	r = requests.get(query_url, timeout=HTTP_TIMEOUT)
+	if r.status_code == 200:
+		json_data = r.json()
+		for data in json_data:
+			if len(data['dps']) == 1:
+				if data['tags']['air_id'] in rows:
+					rows[data['tags']['air_id']][data['tags']['sensor']] = round(list(data['dps'].values())[0])
+					rows[data['tags']['air_id']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+				else:
+					rows[data['tags']['air_id']] = {}
+					rows[data['tags']['air_id']][data['tags']['sensor']] = round(list(data['dps'].values())[0])
+					rows[data['tags']['air_id']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+	else:
+		print(f"get_airkorea_data: fail, status_code={r.status_code}")
+
+	print(f"get_airkorea_data: rows={len(rows)}")
+
+	return rows
+
+
+# Get Oaq Data (OAQ + DOT)
+def get_oaq_data():
+	print("get_oaq_data: start")
+
+	query_day = (datetime.now()-timedelta(days=1)).strftime('%Y/%m/%d')
+	print(f"get_oaq_data: query_day={query_day}")
+
+	rows = {}
+
+	# DOT Data
+	query_url = "http://kiototsdb.kweather.co.kr:24242/api/query?start=" + query_day + "-00:00:00&end=" + query_day + "-23:59:59&m=avg:1d-avg-none:kw-oaq-sensor-dot{serial=*,sensor=pm10|pm25}"
+	print(f"get_oaq_data: dot query_url={query_url}")
+
+	r = requests.get(query_url, timeout=HTTP_TIMEOUT)
+	if r.status_code == 200:
+		json_data = r.json()
+		for data in json_data:
+			if len(data['dps']) == 1:
+				if data['tags']['serial'] in rows:
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0])
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+				else:
+					rows[data['tags']['serial']] = {}
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0])
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+	else:
+		print(f"get_oaq_data: fail, status_code={r.status_code}")
+
+	print(f"get_oaq_data: dot rows={len(rows)}")
+
+
+	# OAQ Data
+	query_url = "http://kiototsdb.kweather.co.kr:24242/api/query?start=" + query_day + "-00:00:00&end=" + query_day + "-23:59:59&m=avg:1d-avg-none:kw-oaq-sensor-kiot{serial=*,sensor=pm10|pm25}"
+	print(f"get_oaq_data: oaq query_url={query_url}")
+
+	r = requests.get(query_url, timeout=HTTP_TIMEOUT)
+	if r.status_code == 200:
+		json_data = r.json()
+		for data in json_data:
+			if len(data['dps']) == 1:
+				if data['tags']['serial'] in rows:
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0])
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+				else:
+					rows[data['tags']['serial']] = {}
+					rows[data['tags']['serial']][data['tags']['sensor']] = round(list(data['dps'].values())[0])
+					rows[data['tags']['serial']]['tm'] = datetime.fromtimestamp(int(list(data['dps'].keys())[0])).strftime("%Y%m%d%H%M")
+	else:
+		print(f"get_oaq_data: fail, status_code={r.status_code}")
+
+	print(f"get_oaq_data: oaq rows={len(rows)}")
+
+	return rows
+
+
+# Make Airkor Info
+def make_airkor_info(airkor_info, airkor_data):
+	print("make_airkor_info: start")
+
+	rows = {}
+
+	for key in airkor_info:
+		if airkor_info[key]['use_yn'] == 'Y':
+			if key not in airkor_data or 'pm10' not in airkor_data[key] or 'pm25' not in airkor_data[key]:
+				rows[key] = {'air_code': key, 'use_yn': 'N'}
+		else:
+			if key in airkor_data and 'pm10' in airkor_data[key] and 'pm25' in airkor_data[key]:
+				rows[key] = {'air_code': key, 'use_yn': 'Y'}
+
+	print(f"make_airkor_info: rows={len(rows)}")
+	return rows
+
+
+# Make Oaq Info
+def make_oaq_info(oaq_info, oaq_data):
+	print("make_oaq_info: start")
+
+	rows = {}
+
+	for key in oaq_info:
+		if oaq_info[key]['use_yn'] == 'Y':
+			if key not in oaq_data or 'pm10' not in oaq_data[key] or 'pm25' not in oaq_data[key]:
+				rows[key] = {'serial': key, 'use_yn': 'N'}
+		else:
+			if key in oaq_data and 'pm10' in oaq_data[key] and 'pm25' in oaq_data[key]:
+				rows[key] = {'serial': key, 'use_yn': 'Y'}
+
+	print(f"make_oaq_info: rows={len(rows)}")
+	return rows
+
+
+
+# Update Airkor Info
+def update_airkor_info(airkor_info_update):
+	print("update_airkor_info: start")
+
+	sql = "UPDATE TB_DONG_AIRKOR_INFO SET use_yn=%s, reg_date=CURRENT_TIMESTAMP WHERE air_code=%s"
+
+	with mysql_connection.cursor() as cursor:
+		try:
+
+			for key in airkor_info_update:
+				cursor.execute(sql, (airkor_info_update[key]['use_yn'], airkor_info_update[key]['air_code']) )
+
+			mysql_connection.commit()
+
+		except Exception as e:
+			traceback.print_exc()
+
+	print(f"update_airkor_info: end={len(airkor_info_update)}")
+
+
+# Update Oaq Info
+def update_oaq_info(oaq_info_update):
+	print("update_oaq_info: start")
+
+	sql = "UPDATE TB_DONG_OAQ_INFO SET use_yn=%s, reg_date=CURRENT_TIMESTAMP WHERE serial=%s"
+
+	with mysql_connection.cursor() as cursor:
+		try:
+
+			for key in oaq_info_update:
+				cursor.execute(sql, (oaq_info_update[key]['use_yn'], oaq_info_update[key]['serial']) )
+
+			mysql_connection.commit()
+
+		except Exception as e:
+			traceback.print_exc()
+
+	print(f"update_oaq_info: end={len(oaq_info_update)}")
+
+
+
+# Dong Map Update
+def update_dong_map():
+	print("update_dong_map: start")
+
+	sql_seoul_del = "DELETE FROM TB_DONG_MAP_INFO WHERE dcode LIKE '11%'"
+
+	sql_seoul_oaq_ins = """
+INSERT INTO TB_DONG_MAP_INFO (
+SELECT dcode,SERIAL, CASE WHEN user_id='seoul' THEN 'D' ELSE 'O' END, ROUND(distance), CURRENT_TIMESTAMP FROM (
+SELECT *, CASE @rowdcode COLLATE utf8mb4_unicode_ci WHEN dcode THEN @rownum:=@rownum+1 ELSE @rownum:=1 END AS RNUM, @rowdcode:=dcode AS rowdcode FROM (
+SELECT TB_DONG_INFO.dcode, TB_DONG_OAQ_INFO.serial, TB_DONG_OAQ_INFO.user_id, ST_DISTANCE_SPHERE(TB_DONG_INFO.location, TB_DONG_OAQ_INFO.location) AS distance  FROM TB_DONG_INFO, TB_DONG_OAQ_INFO
+WHERE TB_DONG_INFO.dcode LIKE '11%' AND TB_DONG_OAQ_INFO.use_yn='Y'
+HAVING distance < 5000
+ORDER BY TB_DONG_INFO.dcode, distance ) AS A, (SELECT @rowdcode:=0, @rownum:=0) AS R
+) AS B
+WHERE RNUM <= 3 )
+"""
+
+	sql_seoul_air_ins = """
+INSERT INTO TB_DONG_MAP_INFO (
+SELECT dcode,air_code,'A',ROUND(distance),CURRENT_TIMESTAMP FROM (
+SELECT *, CASE @rowdcode COLLATE utf8mb4_unicode_ci WHEN dcode THEN @rownum:=@rownum+1 ELSE @rownum:=1 END AS RNUM, @rowdcode:=dcode AS rowdcode FROM (
+SELECT TB_DONG_INFO.dcode, TB_DONG_AIRKOR_INFO.air_code, ST_DISTANCE_SPHERE(TB_DONG_INFO.location, TB_DONG_AIRKOR_INFO.location) AS distance  FROM TB_DONG_INFO, TB_DONG_AIRKOR_INFO
+WHERE TB_DONG_INFO.dcode LIKE '11%' AND TB_DONG_AIRKOR_INFO.use_yn='Y'
+HAVING distance < 10000
+ORDER BY TB_DONG_INFO.dcode, distance ) AS A, (SELECT @rowdcode:=0, @rownum:=0) AS R
+) AS B
+WHERE RNUM <= 3)
+"""
+
+
+	sql_jeju_del = "DELETE FROM TB_DONG_MAP_INFO WHERE dcode LIKE '50%'"
+
+	sql_jeju_oaq_ins = """
+INSERT INTO TB_DONG_MAP_INFO (
+SELECT dcode,SERIAL, CASE WHEN user_id='seoul' THEN 'D' ELSE 'O' END, ROUND(distance), CURRENT_TIMESTAMP FROM (
+SELECT *, CASE @rowdcode COLLATE utf8mb4_unicode_ci WHEN dcode THEN @rownum:=@rownum+1 ELSE @rownum:=1 END AS RNUM, @rowdcode:=dcode AS rowdcode FROM (
+SELECT TB_DONG_INFO.dcode, TB_DONG_OAQ_INFO.serial, TB_DONG_OAQ_INFO.user_id, ST_DISTANCE_SPHERE(TB_DONG_INFO.location, TB_DONG_OAQ_INFO.location) AS distance  FROM TB_DONG_INFO, TB_DONG_OAQ_INFO
+WHERE TB_DONG_INFO.dcode LIKE '50%' AND TB_DONG_OAQ_INFO.use_yn='Y'
+HAVING distance < 70000
+ORDER BY TB_DONG_INFO.dcode, distance ) AS A, (SELECT @rowdcode:=0, @rownum:=0) AS R
+) AS B
+WHERE RNUM <= 3 )
+"""
+
+	sql_jeju_air_ins = """
+INSERT INTO TB_DONG_MAP_INFO (
+SELECT dcode,air_code,'A',ROUND(distance),CURRENT_TIMESTAMP FROM (
+SELECT *, CASE @rowdcode COLLATE utf8mb4_unicode_ci WHEN dcode THEN @rownum:=@rownum+1 ELSE @rownum:=1 END AS RNUM, @rowdcode:=dcode AS rowdcode FROM (
+SELECT TB_DONG_INFO.dcode, TB_DONG_AIRKOR_INFO.air_code, ST_DISTANCE_SPHERE(TB_DONG_INFO.location, TB_DONG_AIRKOR_INFO.location) AS distance  FROM TB_DONG_INFO, TB_DONG_AIRKOR_INFO
+WHERE TB_DONG_INFO.dcode LIKE '50%' AND TB_DONG_AIRKOR_INFO.use_yn='Y'
+HAVING distance < 100000
+ORDER BY TB_DONG_INFO.dcode, distance ) AS A, (SELECT @rowdcode:=0, @rownum:=0) AS R
+) AS B
+WHERE RNUM <= 3)
+"""
+
+
+	sql_other_del = "DELETE FROM TB_DONG_MAP_INFO WHERE dcode NOT LIKE '11%' AND dcode NOT LIKE '50%'"
+
+	sql_other_air_ins = """
+INSERT INTO TB_DONG_MAP_INFO (
+SELECT dcode,air_code,'A',ROUND(distance),CURRENT_TIMESTAMP FROM (
+SELECT *, CASE @rowdcode COLLATE utf8mb4_unicode_ci WHEN dcode THEN @rownum:=@rownum+1 ELSE @rownum:=1 END AS RNUM, @rowdcode:=dcode AS rowdcode FROM (
+SELECT TB_DONG_INFO.dcode, TB_DONG_AIRKOR_INFO.air_code, ST_DISTANCE_SPHERE(TB_DONG_INFO.location, TB_DONG_AIRKOR_INFO.location) AS distance  FROM TB_DONG_INFO, TB_DONG_AIRKOR_INFO
+WHERE TB_DONG_INFO.dcode NOT LIKE '11%' AND TB_DONG_INFO.dcode NOT LIKE '50%' AND TB_DONG_AIRKOR_INFO.use_yn='Y'
+HAVING distance < 100000
+ORDER BY TB_DONG_INFO.dcode, distance ) AS A, (SELECT @rowdcode:=0, @rownum:=0) AS R
+) AS B
+WHERE RNUM <= 3)
+"""
+
+
+	with mysql_connection.cursor() as cursor:
+		try:
+			cursor.execute(sql_seoul_del)
+			cursor.execute(sql_seoul_oaq_ins)
+			#cursor.execute(sql_seoul_air_ins)
+
+			cursor.execute(sql_jeju_del)
+			cursor.execute(sql_jeju_oaq_ins)
+			#cursor.execute(sql_jeju_air_ins)
+
+			cursor.execute(sql_other_del)
+			cursor.execute(sql_other_air_ins)
+
+			mysql_connection.commit()
+
+		except Exception as e:
+			traceback.print_exc()
+		
+	print("update_dong_map: end")
+
+
+# Pmcor Map Update 
+def update_pmcor_map():
+	print("update_pmcor_map: start")
+
+	sql_del = "DELETE FROM TB_PMCOR_MAP_INFO"
+
+	sql_ins = """
+INSERT INTO TB_PMCOR_MAP_INFO (
+SELECT serial,air_code, CASE WHEN user_id='seoul' THEN 'D' ELSE 'O' END, ROUND(distance), CURRENT_TIMESTAMP FROM (
+SELECT *, CASE @rowserial WHEN SERIAL THEN @rownum:=@rownum+1 ELSE @rownum:=1 END AS RNUM, @rowserial:=serial AS rowserial FROM (
+SELECT TB_DONG_OAQ_INFO.serial, TB_DONG_AIRKOR_INFO.air_code, TB_DONG_OAQ_INFO.user_id, ST_DISTANCE_SPHERE(TB_DONG_OAQ_INFO.location, TB_DONG_AIRKOR_INFO.location) AS distance  FROM TB_DONG_OAQ_INFO, TB_DONG_AIRKOR_INFO
+WHERE TB_DONG_AIRKOR_INFO.use_yn='Y'
+ORDER BY TB_DONG_OAQ_INFO.serial, distance ) AS A, (SELECT @rowdcode:=0, @rownum:=0) AS R
+) AS B
+WHERE RNUM <= 6 )
+"""
+
+	with mysql_connection.cursor() as cursor:
+		try:
+			cursor.execute(sql_del)
+			cursor.execute(sql_ins)
+
+			mysql_connection.commit()
+
+		except Exception as e:
+			traceback.print_exc()
+		
+	print("update_pmcor_map: end")
+
+
+
+def job():
+	global mysql_connection
+	print("job: start - " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+
+	nowdate = datetime.now().strftime('%Y%m%d%H%M')
+	print("job: nowdate - " + nowdate)
+
+	# Mysql Connection
+	mysql_connection = pymysql.connect(host=address[0], port=int(address[1]),
+			user=username, password=password, db="re_kiot", charset='utf8mb4',
+			cursorclass=pymysql.cursors.DictCursor, autocommit=False)
+
+	# Airkorea Info Update
+	airkor_info = get_airkor_info()
+	airkor_data = get_airkorea_data()
+	airkor_info_update = make_airkor_info(airkor_info, airkor_data)
+	update_airkor_info(airkor_info_update)
+
+	# OAQ Info Update
+	oaq_info = get_oaq_info()
+	oaq_data = get_oaq_data()
+	oaq_info_update = make_oaq_info(oaq_info, oaq_data)
+	update_oaq_info(oaq_info_update)
+
+	# Dong Map Update
+	#update_dong_map()
+
+	# Pmcor Map Update
+	update_pmcor_map()
+
+	mysql_connection.close()
+
+	print("job: end - " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+	print("================================================")
+
+
+# Main
+if __name__ == '__main__':
+	print("Started kiot-dong-corr-mapping-proc.")
+
+	signal.signal(signal.SIGHUP, receive_signal)
+	signal.signal(signal.SIGTERM, receive_signal)
+	signal.signal(signal.SIGQUIT, receive_signal)
+
+	try:
+		#job()
+		schedule.every().day.at("00:10").do(job)
+
+		while True:
+			schedule.run_pending()
+			time.sleep(1)
+
+	except (KeyboardInterrupt, SystemExit):
+		print("Stopping kiot-dong-corr-mapping-proc.")
+	except Exception:
+		traceback.print_exc()
+	finally:
+		release()
+		print("Stopped kiot-dong-corr-mapping-proc.")

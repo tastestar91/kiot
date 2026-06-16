@@ -1,0 +1,725 @@
+[ { "timestamp": 1586745540,
+    "value": 202004131138,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "tm"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 202004131138,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "tm"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 202004131138,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.tm",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 30,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "pm01"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 30,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "pm01"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 30,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.pm01",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 32,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "pm25_raw"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 32,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "pm25_raw"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 32,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.pm25_raw",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 55,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "pm10_raw"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 55,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "pm10_raw"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 55,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.pm10_raw",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 20.6,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "temp"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 20.6,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "temp"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 20.6,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.temp",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1016,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "humi"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1016,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "humi"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1016,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.humi",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 294,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "co2"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 294,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "co2"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 294,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.co2",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 969,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "voc"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 969,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "voc"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 969,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.voc",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 69,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "noise"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 69,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "noise"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 69,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.noise",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 132.2,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "windd"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 132.2,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "windd"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 132.2,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.windd",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 130.7,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "windd_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 130.7,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "windd_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 130.7,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.windd_max",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 21,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "winds"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 21,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "winds"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 21,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.winds",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 24.4,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "winds_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 24.4,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "winds_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 24.4,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.winds_max",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 420,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "lux"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 420,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "lux"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 420,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.lux",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 23.6,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "uv"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 23.6,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "uv"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 23.6,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.uv",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 9.85,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "accx"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 9.85,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "accx"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 9.85,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.accx",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 3.63,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "accx_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 3.63,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "accx_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 3.63,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.accx_max",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 11.51,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "accy"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 11.51,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "accy"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 11.51,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.accy",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 13.39,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "accy_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 13.39,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "accy_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 13.39,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.accy_max",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 7.25,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "accz"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 7.25,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "accz"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 7.25,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.accz",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 9.38,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "accz_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 9.38,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "accz_max"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 9.38,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.accz_max",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": -51.4,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "wbgt"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": -51.4,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "wbgt"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": -51.4,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.wbgt",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 126.2,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "co"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 126.2,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "co"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 126.2,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.co",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 567,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "hcho"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 567,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "hcho"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 567,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.hcho",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 0.91,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "o3"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 0.91,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "o3"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 0.91,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.o3",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1168,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "rn"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1168,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "rn"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1168,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.rn",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1395,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "no2"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1395,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "no2"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 1395,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.no2",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 392,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "so2"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 392,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "so2"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 392,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.so2",
+    "tags": {
+      "admin": "kweather"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 57,
+    "metric": "test.kw-iaq-sensor-kiot",
+    "tags": {
+      "serial": "IAQP1002634",
+      "sensor": "cici"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 57,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634",
+    "tags": {
+      "sensor": "cici"
+    }
+  },
+  {
+    "timestamp": 1586745540,
+    "value": 57,
+    "metric": "test.kw-iaq-sensor-kiot.IAQP1002634.cici",
+    "tags": {
+      "admin": "kweather"
+    }
+  }
+]

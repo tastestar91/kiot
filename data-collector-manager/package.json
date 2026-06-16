@@ -1,0 +1,25 @@
+{
+  "name": "data-collector-manager",
+  "version": "1.2.0",
+  "description": "Data Collector Manager",
+  "main": "app.js",
+  "scripts": {
+    "start": "NODE_ENV=production DEBUG=data-collector-manager:* node ."
+  },
+  "keywords": [
+    "data",
+    "collector",
+    "manager",
+    "IoT"
+  ],
+  "author": "Dongwoo Kwon <dwkwon80@gmail.com>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "debug": "^4.1.1",
+    "graceful-fs": "^4.2.3",
+    "ioredis": "^4.16.2",
+    "node-zookeeper-client": "^1.1.0",
+    "request": "^2.88.2",
+    "shelljs": "^0.8.3"
+  }
+}

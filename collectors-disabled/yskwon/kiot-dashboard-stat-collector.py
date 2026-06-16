@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+
+#-------------------------------------------------------------------
+# kiot-dashboard-stat-collector [Python3/TAB]
+#
+# yskwon, 2020-05-07
+#-------------------------------------------------------------------
+
+import json
+import signal
+import sys
+import time
+import datetime
+import traceback
+
+import pymysql.cursors
+import schedule
+
+import requests
+
+# Global constants
+CONFIG_FILE = "/opt/apps/apps-config.json"
+
+
+# Load configurations
+try:
+	with open(CONFIG_FILE, 'r') as f:
+		conf = json.load(f)
+
+except Exception:
+	traceback.print_exc()
+	sys.exit(1)
+
+
+def receive_signal(signal_number, frame):
+	print("Received signal: " + str(signal_number))
+	sys.exit()
+
+
+def release():
+	print("Disconnected from all servers and released all resources")
+	# TODO: Close server connections and release all resources
+	mysql_connection.close()
+
+
+# Job to be scheduled
+def job_last():
+	nowdate = datetime.datetime.now().strftime('%Y%m%d%H%M')
+	print("job_last: nowdate - " + nowdate)
+
+	r = requests.get('http://220.95.232.212:8888/api/dashboard/receive/cnt')
+	print("job_last: %s" % str(r.content))
+	if r.status_code == 200 and r.json()['status'] == 'SUCCESS':
+		print("total.allCnt: %s" % str(r.json()['data']['total']['allCnt']))
+	else:
+		print("job_last: api status: fail")
+		return
+
+	try:
+		# MySQL
+		mysql_connection = pymysql.connect(host='220.95.232.212', user='testkiot',
+			password='kiot1234', db='re_kiot', charset='utf8mb4',
+			cursorclass=pymysql.cursors.DictCursor)
+
+		with mysql_connection.cursor() as cursor:
+
+			sql = "UPDATE TB_STAT_PLATFORM_LAST SET device_cnt=%s, device_cnt_ok=%s, device_cnt_nok=%s, stat_date=%s, reg_date=CURRENT_TIMESTAMP WHERE stat_type=%s AND device_type=%s"
+
+			cursor.execute(sql, (r.json()['data']['total']['allCnt'], r.json()['data']['total']['receiveCnt'], r.json()['data']['total']['unReceiveCnt'], nowdate, 'ALL', 'ALL', ))
+			cursor.execute(sql, (r.json()['data']['iaq']['allCnt'], r.json()['data']['iaq']['receiveCnt'], r.json()['data']['iaq']['unReceiveCnt'], nowdate, 'ALL', 'IAQ', ))
+			cursor.execute(sql, (r.json()['data']['oaq']['allCnt'], r.json()['data']['oaq']['receiveCnt'], r.json()['data']['oaq']['unReceiveCnt'], nowdate, 'ALL', 'OAQ', ))
+			cursor.execute(sql, (r.json()['data']['dot']['allCnt'], r.json()['data']['dot']['receiveCnt'], r.json()['data']['dot']['unReceiveCnt'], nowdate, 'ALL', 'DOT', ))
+			cursor.execute(sql, (r.json()['data']['vent']['allCnt'], r.json()['data']['vent']['receiveCnt'], r.json()['data']['vent']['unReceiveCnt'], nowdate, 'ALL', 'VENT', ))
+
+			cursor.execute(sql, (r.json()['dataUser']['total']['allCnt'], r.json()['dataUser']['total']['receiveCnt'], r.json()['dataUser']['total']['unReceiveCnt'], nowdate, 'USER', 'ALL', ))
+			cursor.execute(sql, (r.json()['dataUser']['iaq']['allCnt'], r.json()['dataUser']['iaq']['receiveCnt'], r.json()['dataUser']['iaq']['unReceiveCnt'], nowdate, 'USER', 'IAQ', ))
+			cursor.execute(sql, (r.json()['dataUser']['oaq']['allCnt'], r.json()['dataUser']['oaq']['receiveCnt'], r.json()['dataUser']['oaq']['unReceiveCnt'], nowdate, 'USER', 'OAQ', ))
+			cursor.execute(sql, (r.json()['dataUser']['dot']['allCnt'], r.json()['dataUser']['dot']['receiveCnt'], r.json()['dataUser']['dot']['unReceiveCnt'], nowdate, 'USER', 'DOT', ))
+			cursor.execute(sql, (r.json()['dataUser']['vent']['allCnt'], r.json()['dataUser']['vent']['receiveCnt'], r.json()['dataUser']['vent']['unReceiveCnt'], nowdate, 'USER', 'VENT', ))
+
+		mysql_connection.commit()
+
+	except Exception:
+		traceback.print_exc()
+
+	finally:
+		mysql_connection.close()
+
+
+def job_log():
+	nowdate = datetime.datetime.now().strftime('%Y%m%d%H%M')
+	print("job_log: nowdate - " + nowdate)
+
+	r = requests.get('http://220.95.232.212:8888/api/dashboard/receive/cnt')
+	print("job_log: %s" % str(r.content))
+	if r.status_code == 200 and r.json()['status'] == 'SUCCESS':
+		print("total.allCnt: %s" % str(r.json()['data']['total']['allCnt']))
+	else:
+		print("job_log: api status: fail")
+		return
+
+	try:
+		# MySQL
+		mysql_connection = pymysql.connect(host='220.95.232.212', user='testkiot',
+			password='kiot1234', db='re_kiot', charset='utf8mb4',
+			cursorclass=pymysql.cursors.DictCursor)
+
+		with mysql_connection.cursor() as cursor:
+
+			sql = "INSERT INTO TB_STAT_PLATFORM (stat_type, device_type, device_cnt, device_cnt_ok, device_cnt_nok, stat_date) VALUES (%s, %s, %s, %s, %s, %s)"
+
+			cursor.execute(sql, ('ALL', 'ALL', r.json()['data']['total']['allCnt'], r.json()['data']['total']['receiveCnt'], r.json()['data']['total']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('ALL', 'IAQ', r.json()['data']['iaq']['allCnt'], r.json()['data']['iaq']['receiveCnt'], r.json()['data']['iaq']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('ALL', 'OAQ', r.json()['data']['oaq']['allCnt'], r.json()['data']['oaq']['receiveCnt'], r.json()['data']['oaq']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('ALL', 'DOT', r.json()['data']['dot']['allCnt'], r.json()['data']['dot']['receiveCnt'], r.json()['data']['dot']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('ALL', 'VENT', r.json()['data']['vent']['allCnt'], r.json()['data']['vent']['receiveCnt'], r.json()['data']['vent']['unReceiveCnt'], nowdate, ))
+
+			cursor.execute(sql, ('USER', 'ALL', r.json()['dataUser']['total']['allCnt'], r.json()['dataUser']['total']['receiveCnt'], r.json()['dataUser']['total']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('USER', 'IAQ', r.json()['dataUser']['iaq']['allCnt'], r.json()['dataUser']['iaq']['receiveCnt'], r.json()['dataUser']['iaq']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('USER', 'OAQ', r.json()['dataUser']['oaq']['allCnt'], r.json()['dataUser']['oaq']['receiveCnt'], r.json()['dataUser']['oaq']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('USER', 'DOT', r.json()['dataUser']['dot']['allCnt'], r.json()['dataUser']['dot']['receiveCnt'], r.json()['dataUser']['dot']['unReceiveCnt'], nowdate, ))
+			cursor.execute(sql, ('USER', 'VENT', r.json()['dataUser']['vent']['allCnt'], r.json()['dataUser']['vent']['receiveCnt'], r.json()['dataUser']['vent']['unReceiveCnt'], nowdate, ))
+
+
+		mysql_connection.commit()
+
+	except Exception:
+		traceback.print_exc()
+
+	finally:
+		mysql_connection.close()
+
+
+# Main
+if __name__ == '__main__':
+	print("Started kiot-dashboard-stat-collector.")
+
+	signal.signal(signal.SIGHUP, receive_signal)
+	signal.signal(signal.SIGTERM, receive_signal)
+	signal.signal(signal.SIGQUIT, receive_signal)
+
+	try:
+		# Schedule a job every hour
+		# (Reference) https://pypi.org/project/schedule
+#schedule.every(10).minutes.do(job_last)
+#schedule.every().hour.at(":00").do(job_log)
+		job_last()
+		job_log()
+
+		while True:
+			schedule.run_pending()
+			time.sleep(1)
+	except (KeyboardInterrupt, SystemExit):
+		print("Stopping kiot-dashboard-stat-collector.")
+	except Exception:
+		traceback.print_exc()
+	finally:
+		release()
+		print("Stopped kiot-dashboard-stat-collector.")
